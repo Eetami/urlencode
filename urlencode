@@ -1,0 +1,53 @@
+#!/bin/bash
+
+HELP_TEXT="urlencode [-h] [-i chars]
+
+The scripts reads single line from stdin and applies URL encoding to it.
+
+URL encoding can be disabled for select characters using the -i option.
+
+Example:
+$ urlencode -i 'öä' <<<\"pääkkösen paja\"
+pääkkösen%20paja
+"
+
+declare unreserved_chars_regex='[a-zA-Z0-9\.~_\-]'
+declare -A ignored
+
+while getopts ':i:h' opt; do
+  case $opt in
+    i)
+      for ((i=0; i < ${#OPTARG}; i++)); do
+        ignored+=([${OPTARG:i:1}]='t')
+      done
+      ;;
+    h)
+      echo "${HELP_TEXT}"
+      exit 0
+      ;;
+    ?)
+      echo Unrecognized option: -${OPTARG} >&2
+      exit 1
+      ;;
+  esac
+done
+
+read -rt .1 str
+
+if [ -z "$str" ]; then
+  echo "Missing stdin, check usage with urlencode -h" >&2
+  exit 1
+fi
+
+for ((i=0; i < ${#str}; i++)); do
+  char=${str:i:1}
+  if grep -q "$unreserved_chars_regex" <<<$char; then
+    printf '%s' $char
+  elif [ -n "${ignored[$char]}" ]; then
+    printf '%s' $char
+  else
+    printf '%%%02X' "'$char"
+  fi
+done
+
+printf '\n'
