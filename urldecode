@@ -1,0 +1,23 @@
+#!/bin/bash
+
+declare hex_regex='[a-fA-F0-9]{2}'
+
+declare output=""
+
+read -rt .1 str
+
+for ((i=0; i < ${#str}; i++)); do
+  char="${str:i:1}"
+  if [ "$char" = "%" ]; then
+    hex="${str:i+1:2}"
+    if ! grep -qE "$hex_regex" <<<"$hex"; then
+      echo "Unreadable hex value: $hex" >&2
+      exit 1
+    fi
+    printf -v char '%b' "\u${hex}" 2>/dev/null
+    ((i+=2))
+  fi
+  output="${output}${char}"
+done
+
+printf '%s\n' "$output"
