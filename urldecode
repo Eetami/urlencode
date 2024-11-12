@@ -1,10 +1,37 @@
 #!/bin/bash
 
+HELP_TEXT="urldecode [-h]
+
+The script reads a single line from stdin and applies URL decoding to it.
+
+Example:
+$ urldecode <<<\"p%E4%E4kk%F6sen%20paja\"
+pääkkösen paja
+"
+
 declare hex_regex='[a-fA-F0-9]{2}'
 
 declare output=""
 
+while getopts 'h' opt; do
+  case $opt in
+    h)
+      echo "${HELP_TEXT}"
+      exit 0
+      ;;
+    ?)
+      echo "Unrecognized option: -${OPTARG}" >&2
+      exit 1
+      ;;
+  esac
+done
+
 read -rt .1 str
+
+if [ -z "$str" ]; then
+  echo "Missing stdin, check usage with urldecode -h" >&2
+  exit 1
+fi
 
 for ((i=0; i < ${#str}; i++)); do
   char="${str:i:1}"

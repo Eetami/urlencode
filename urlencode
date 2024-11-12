@@ -2,7 +2,7 @@
 
 HELP_TEXT="urlencode [-h] [-i chars]
 
-The scripts reads single line from stdin and applies URL encoding to it.
+The script reads a single line from stdin and applies URL encoding to it.
 
 URL encoding can be disabled for select characters using the -i option.
 
@@ -14,7 +14,7 @@ pääkkösen%20paja
 declare unreserved_chars_regex='[a-zA-Z0-9\.~_\-]'
 declare -A ignored
 
-while getopts ':i:h' opt; do
+while getopts 'i:h' opt; do
   case $opt in
     i)
       for ((i=0; i < ${#OPTARG}; i++)); do
@@ -26,7 +26,7 @@ while getopts ':i:h' opt; do
       exit 0
       ;;
     ?)
-      echo Unrecognized option: -${OPTARG} >&2
+      echo "Unrecognized option: -${OPTARG}" >&2
       exit 1
       ;;
   esac
